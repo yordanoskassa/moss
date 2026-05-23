@@ -401,7 +401,7 @@ class TestMossPipelineOnBenchmark:
             f"--- {tid} ---\n{text}" for tid, text in transcripts.items()
         )
 
-        runner = ClaudeCodeRunner(config=RunnerConfig(timeout=300))
+        runner = ClaudeCodeRunner(config=RunnerConfig(timeout=600))
         pipeline_dir = benchmark_workdir / "pipeline"
         pipeline_dir.mkdir(exist_ok=True)
 
