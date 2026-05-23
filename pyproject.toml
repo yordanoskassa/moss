@@ -1,0 +1,41 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "moss"
+version = "0.1.0"
+description = "MOSS: Self-Evolution through Source-Level Rewriting"
+requires-python = ">=3.12"
+license = "MIT"
+dependencies = [
+    "typer>=0.12,<1",
+    "fastapi>=0.115,<1",
+    "uvicorn[standard]>=0.30,<1",
+    "pydantic>=2.7,<3",
+    "docker>=7,<8",
+    "aiofiles>=24,<25",
+    "httpx>=0.27,<1",
+    "tomli>=2,<3",
+    "rich>=13,<14",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8,<9",
+    "pytest-asyncio>=0.23,<1",
+    "pytest-mock>=3,<4",
+    "ruff>=0.5,<1",
+]
+
+[project.scripts]
+moss = "moss.cli.main:app"
+moss-daemon = "moss.daemon.main:main"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100

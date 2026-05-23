@@ -1,0 +1,1 @@
+"""MOSS host-resident daemon."""

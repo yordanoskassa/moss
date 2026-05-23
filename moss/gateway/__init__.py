@@ -1,0 +1,1 @@
+"""MOSS FastAPI gateway service."""

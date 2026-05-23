@@ -1,0 +1,50 @@
+version: "3.9"
+
+services:
+  moss-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.gateway
+    container_name: moss-gateway
+    ports:
+      - "8420:8420"
+    volumes:
+      - moss-home:/data/moss
+      - user-state:/data/user-state
+      - ./capability_doc.md:/opt/moss/capability_doc.md:ro
+      - ./moss.toml:/opt/moss/moss.toml:ro
+      - daemon-socket:/tmp/moss-socket
+    environment:
+      - MOSS_HOME=/data/moss
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8420/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  moss-daemon:
+    build:
+      context: .
+      dockerfile: Dockerfile.gateway
+    container_name: moss-daemon
+    command: ["moss-daemon"]
+    volumes:
+      - moss-home:/data/moss
+      - daemon-socket:/tmp/moss-socket
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - MOSS_HOME=/data/moss
+      - MOSS_DAEMON_SOCKET=/tmp/moss-socket/moss-daemon.sock
+    restart: unless-stopped
+    depends_on:
+      moss-gateway:
+        condition: service_healthy
+
+volumes:
+  moss-home:
+    driver: local
+  user-state:
+    driver: local
+  daemon-socket:
+    driver: local

@@ -1,0 +1,48 @@
+# MOSS Gateway — extends OpenClaw with evolution service
+# Build: docker build -f Dockerfile.gateway -t moss-gateway .
+
+FROM node:20-slim AS base
+
+# Install Python 3.12+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 \
+    python3-pip \
+    python3-venv \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create working directories
+WORKDIR /opt/moss
+
+# Install MOSS Python package
+COPY pyproject.toml .
+COPY moss/ ./moss/
+COPY capability_doc.md .
+COPY moss.toml .
+
+RUN python3 -m venv /opt/moss/venv \
+    && /opt/moss/venv/bin/pip install --no-cache-dir -e .
+
+ENV PATH="/opt/moss/venv/bin:$PATH"
+ENV MOSS_HOME="/data/moss"
+
+# Copy hook files
+COPY hooks/ /opt/moss/hooks/
+
+# Expose gateway port
+EXPOSE 8420
+
+# Health check
+HEALTHCHECK --interval=15s --timeout=5s --retries=3 \
+    CMD curl -sf http://localhost:8420/health || exit 1
+
+# Heartbeat writer (updates /tmp/moss-heartbeat every 10s)
+RUN echo '#!/bin/bash\nwhile true; do date +%s > /tmp/moss-heartbeat; sleep 10; done' \
+    > /opt/moss/heartbeat.sh && chmod +x /opt/moss/heartbeat.sh
+
+# Start both OpenClaw substrate and MOSS gateway
+CMD ["sh", "-c", "\
+    /opt/moss/heartbeat.sh & \
+    uvicorn moss.gateway.app:app --host 0.0.0.0 --port 8420 \
+"]

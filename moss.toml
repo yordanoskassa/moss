@@ -1,0 +1,47 @@
+[moss]
+home = "~/.moss"
+substrate = "openclaw"
+
+[depth.light]
+max_iterations = 2
+stage_round_budget = 1
+trials_per_task = 1
+plateau_threshold = 1
+
+[depth.standard]
+max_iterations = 5
+stage_round_budget = 3
+trials_per_task = 3
+plateau_threshold = 3
+
+[depth.deep]
+max_iterations = 10
+stage_round_budget = 5
+trials_per_task = 5
+plateau_threshold = 5
+
+[batch]
+chunk_threshold = 8
+
+[runner]
+default = "claude-code"
+
+[runner.claude-code]
+command = "claude"
+flags = ["--print", "--dangerously-skip-permissions"]
+timeout = 300
+
+[swap]
+poll_interval = 2
+probe_window = 90
+probe_sample_interval = 5
+heartbeat_max_age = 30
+consecutive_passes_required = 3
+
+[gateway]
+host = "0.0.0.0"
+port = 8420
+
+[daemon]
+socket_path = "/tmp/moss-daemon.sock"
+auto_scan_interval = 3600
